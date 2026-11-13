@@ -6,7 +6,7 @@ const { protect, optionalAuth } = require('../middleware/auth');
 
 router.get('/', roomController.getRooms);
 router.post('/', protect, requireFields(['title', 'topic']), roomController.createRoom);
-router.get('/:id', validateObjectId('id'), roomController.getRoomById);
+router.get('/:id', protect, validateObjectId('id'), roomController.getRoomById);
 router.post('/:id/close', protect, validateObjectId('id'), roomController.closeRoom);
 
 module.exports = router;

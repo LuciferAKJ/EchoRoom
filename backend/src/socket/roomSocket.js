@@ -3,6 +3,7 @@ const User = require('../models/User');
 const AnonymousIdentity = require('../models/AnonymousIdentity');
 const DiscussionRoom = require('../models/DiscussionRoom');
 const RoomMessage = require('../models/RoomMessage');
+const { getJwtSecret } = require('../config/jwt');
 
 // In-memory tracking of active room members: Map<roomId, Map<socketId, { pseudonym, avatarColor, identityId }>>
 const roomPresences = new Map();
@@ -25,10 +26,7 @@ const socketAuthMiddleware = async (socket, next) => {
       return next(new Error('Authentication token required'));
     }
 
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || 'echoroom_jwt_development_secret_key_change_in_production'
-    );
+    const decoded = jwt.verify(token, getJwtSecret());
 
     const user = await User.findById(decoded.userId);
     if (!user || !user.isActive || user.isCurrentlyRestricted()) {
@@ -163,10 +161,21 @@ const initRoomSocket = (io) => {
         }
         messageRateLimits.set(socket.id, now);
 
-        // Verify room is open
+        // Verify room exists and is active
         const room = await DiscussionRoom.findOne({ _id: roomId, isClosed: false });
         if (!room) {
-          return socket.emit('room:error', { message: 'This room has been closed' });
+          return socket.emit('room:error', { message: 'This room has been closed or does not exist' });
+        }
+
+        // Verify sender has actively joined this room
+        const presenceMap = roomPresences.get(roomId);
+        const isPresent = presenceMap && presenceMap.has(socket.id);
+        const isInSocketRoom = socket.rooms && socket.rooms.has(roomId);
+
+        if (!isPresent || !isInSocketRoom) {
+          return socket.emit('room:error', {
+            message: 'You must join this room before sending messages',
+          });
         }
 
         // Persist message to database

@@ -83,6 +83,19 @@ const runSocketTest = async () => {
     ]);
     console.log('✓ Both socket clients connected with authenticated JWT handshakes');
 
+    // 5.5. Verify Client B CANNOT send message into room before joining
+    const unauthorizedMsgPromise = new Promise((resolve) => {
+      clientB.on('room:error', (err) => {
+        resolve(err.message);
+      });
+    });
+    clientB.emit('message:send', { roomId, message: 'Unjoined intrusion attempt' });
+    const authErrorMsg = await unauthorizedMsgPromise;
+    if (authErrorMsg !== 'You must join this room before sending messages') {
+      throw new Error(`Expected join check error, got: ${authErrorMsg}`);
+    }
+    console.log(`✓ Unauthorized message emission without joining rejected: "${authErrorMsg}"`);
+
     // 6. Client A joins room
     const joinAPromise = new Promise((resolve) => {
       clientA.on('room:joined', (data) => {
@@ -152,10 +165,29 @@ const runSocketTest = async () => {
 
     await closePromise;
 
-    // Cleanup
+    // Cleanup sockets and server
     clientA.disconnect();
     clientB.disconnect();
     testServer.close();
+
+    // Clean up created test documents from test database
+    try {
+      const User = require('../src/models/User');
+      const AnonymousIdentity = require('../src/models/AnonymousIdentity');
+      const DiscussionRoom = require('../src/models/DiscussionRoom');
+      const RoomMessage = require('../src/models/RoomMessage');
+
+      const testUserIds = [userARes.body.user._id, userBRes.body.user._id].filter(Boolean);
+      await User.deleteMany({ _id: { $in: testUserIds } });
+      await AnonymousIdentity.deleteMany({ userId: { $in: testUserIds } });
+      if (roomId) {
+        await DiscussionRoom.findByIdAndDelete(roomId);
+        await RoomMessage.deleteMany({ room: roomId });
+      }
+    } catch (cleanupErr) {
+      console.warn('Socket test data cleanup warning:', cleanupErr.message);
+    }
+
     console.log('ALL STEP 7 SOCKET.IO REAL-TIME VERIFICATION TESTS PASSED!');
     process.exit(0);
   } catch (err) {

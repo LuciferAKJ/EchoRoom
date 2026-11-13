@@ -100,6 +100,16 @@ Authenticates existing credentials and issues a signed JWT.
   ```
 - **Response (200 OK):** Returns token, user, and public identity.
 
+### `POST /api/auth/logout`
+Acknowledges client session logout. EchoRoom uses stateless Bearer JWTs, so the client discards the token from local/session storage upon receiving the response.
+- **Response (200 OK):**
+  ```json
+  {
+    "status": "success",
+    "message": "Logged out successfully. Please remove your authentication token from client storage."
+  }
+  ```
+
 ### `GET /api/auth/me`
 Retrieves current authenticated account state and public identity.
 - **Headers:** `Authorization: Bearer <token>`
@@ -267,6 +277,34 @@ Retrieves all bookmarked thoughts for the authenticated user.
 
 ### `GET /api/rooms`
 Lists active discussion rooms with active participant count and topic tags.
+
+### `GET /api/rooms/:id`
+Retrieves details and recent message history for a single discussion room.
+- **Headers:** `Authorization: Bearer <token>`
+- **Response:**
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "room": {
+        "_id": "673...",
+        "title": "Late Night Anxiety & Midterm Burnout",
+        "topic": "Academics",
+        "creatorIdentity": { "secretUsername": "QuietEcho#4021", "avatarColor": "#8b5cf6" },
+        "activeParticipants": 2,
+        "isClosed": false
+      },
+      "messages": [
+        {
+          "_id": "673...",
+          "content": "Sending warmth to everyone studying tonight.",
+          "senderIdentity": { "secretUsername": "WanderingSoul#1022" },
+          "createdAt": "2026-11-13T10:00:00.000Z"
+        }
+      ]
+    }
+  }
+  ```
 
 ### `POST /api/rooms`
 Creates a new discussion room.

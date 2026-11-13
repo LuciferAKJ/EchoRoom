@@ -6,22 +6,43 @@ const cors = require('cors');
 const helmet = require('helmet');
 const { Server } = require('socket.io');
 const { connectDB } = require('./src/config/db');
+const { getJwtSecret } = require('./src/config/jwt');
+
+// Enforce mandatory security configuration on startup
+try {
+  getJwtSecret();
+} catch (err) {
+  console.error(err.message);
+  process.exit(1);
+}
 
 // Initialize Express app
 const app = express();
 const server = http.createServer(app);
 
-// Configure CORS origins
+// Configure trusted CORS origins (strict matching, no open fallbacks)
 const allowedOrigins = [
-  process.env.CLIENT_URL || 'http://localhost:5173',
+  process.env.CLIENT_URL,
+  'http://localhost:5173',
   'http://localhost:3000',
-  'http://127.0.0.1:5173'
-];
+  'http://127.0.0.1:5173',
+].filter(Boolean);
 
-// Initialize Socket.IO with CORS
+const isAllowedOrigin = (origin) => {
+  // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
+  if (!origin) return true;
+  return allowedOrigins.includes(origin);
+};
+
+// Initialize Socket.IO with consistent CORS validation
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (isAllowedOrigin(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error('CORS rejected: Origin not allowed'));
+    },
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
     credentials: true,
   },
@@ -40,11 +61,10 @@ app.use(helmet({
 }));
 app.use(cors({
   origin: (origin, callback) => {
-    // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
-    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+    if (isAllowedOrigin(origin)) {
       return callback(null, true);
     }
-    return callback(null, true); // Dev convenience
+    return callback(new Error('CORS rejected: Origin not allowed'));
   },
   credentials: true,
 }));

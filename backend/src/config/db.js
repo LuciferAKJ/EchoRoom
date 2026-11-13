@@ -24,6 +24,15 @@ const connectDB = async () => {
     mongoURI = mongoURI.replace('mongodb.net/', 'mongodb.net/echoroom?retryWrites=true&w=majority');
   }
 
+  // Isolate automated tests in a dedicated test database (e.g. echoroom_test)
+  if (process.env.NODE_ENV === 'test') {
+    if (mongoURI.includes('/echoroom')) {
+      mongoURI = mongoURI.replace('/echoroom', '/echoroom_test');
+    } else if (mongoURI.includes('mongodb.net/')) {
+      mongoURI = mongoURI.replace('mongodb.net/', 'mongodb.net/echoroom_test?');
+    }
+  }
+
   try {
     const conn = await mongoose.connect(mongoURI, {
       serverSelectionTimeoutMS: 5000,

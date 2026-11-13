@@ -44,7 +44,9 @@ npm test
 | `GET /api/analytics/community` | Analytics | Status 200, emotion breakdown | Returns 200, totals & distribution computed | **PASS** |
 | `POST /api/reports` | Moderation | Status 201, report status `pending` | Returns 201, report filed for admin triage | **PASS** |
 | `GET /api/admin/reports` (Non-Admin) | RBAC Security | Status 403 Forbidden | Returns 403 with "permission" denial | **PASS** |
+| `GET /api/rooms/:id` (Unauthenticated) | Auth Security | Status 401 Unauthorized | Rejects request before querying database | **PASS** |
 | Unauthorized Socket Connection | Socket Auth | Connection rejected | Returns `connect_error: Authentication token required` | **PASS** |
+| Unauthorized Socket Message | Socket Security | Emission rejected | Returns `room:error: You must join this room before sending messages` | **PASS** |
 | Multi-Client Socket.IO Room Joining | Real-Time | Handshake authenticated, count = 2 | Both clients connect and receive `room:joined` | **PASS** |
 | Real-Time Message Exchange | Real-Time | Client B receives Client A's message | Client B receives broadcast in < 20ms | **PASS** |
 | Client Leaves Room Presence | Real-Time | Participant count decrements to 1 | Client A receives updated presence count = 1 | **PASS** |

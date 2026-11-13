@@ -129,7 +129,9 @@ export const ThoughtDetails = () => {
             if (savedRes.data.success) {
               setIsSaved(savedRes.data.isSaved);
             }
-          } catch (e) {}
+          } catch (_err) {
+            // Non-critical check for guest/initial load
+          }
         }
 
         // Fetch comments

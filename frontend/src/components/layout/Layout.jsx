@@ -12,7 +12,6 @@ import {
   X,
   Sparkles,
   Home,
-  User,
   LogIn,
   LogOut,
 } from 'lucide-react';

@@ -4,6 +4,7 @@ const User = require('../models/User');
 const AnonymousIdentity = require('../models/AnonymousIdentity');
 const { AppError } = require('../middleware/errorMiddleware');
 const { generateRandomPseudonym, getRandomAvatarColor } = require('../utils/identityGenerator');
+const { getJwtSecret } = require('../config/jwt');
 
 /**
  * Sign a JWT token containing user ID and role
@@ -11,7 +12,7 @@ const { generateRandomPseudonym, getRandomAvatarColor } = require('../utils/iden
 const signToken = (userId, role) => {
   return jwt.sign(
     { userId, role },
-    process.env.JWT_SECRET || 'echoroom_jwt_development_secret_key_change_in_production',
+    getJwtSecret(),
     { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
   );
 };
@@ -155,14 +156,16 @@ const login = async (req, res, next) => {
 };
 
 /**
- * Invalidate session / client logout
+ * Client logout
+ * Clears client session instructions. In stateless JWT architecture, the client
+ * purges the stored Bearer token from localStorage.
  * POST /api/auth/logout
  */
 const logout = async (req, res, next) => {
   try {
     res.status(200).json({
       success: true,
-      message: 'Logged out successfully',
+      message: 'Logged out successfully. Client session cleared.',
     });
   } catch (error) {
     next(error);

@@ -325,4 +325,9 @@ describe('6. Analytics & Moderation Authorization', () => {
     assert.equal(res.status, 403);
     assert.match(res.body.message, /not have permission/i);
   });
+
+  test('GET /api/rooms/:id rejects unauthenticated access (401)', async () => {
+    const res = await request(app).get('/api/rooms/660000000000000000000001');
+    assert.equal(res.status, 401);
+  });
 });

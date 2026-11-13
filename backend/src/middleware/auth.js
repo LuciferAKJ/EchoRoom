@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const AnonymousIdentity = require('../models/AnonymousIdentity');
 const { AppError } = require('./errorMiddleware');
+const { getJwtSecret } = require('../config/jwt');
 
 /**
  * Middleware to protect private routes requiring authentication.
@@ -26,10 +27,7 @@ const protect = async (req, res, next) => {
     }
 
     // Verify token
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || 'echoroom_jwt_development_secret_key_change_in_production'
-    );
+    const decoded = jwt.verify(token, getJwtSecret());
 
     // Check if user still exists
     const user = await User.findById(decoded.userId);
@@ -84,10 +82,7 @@ const optionalAuth = async (req, res, next) => {
 
     if (!token) return next();
 
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || 'echoroom_jwt_development_secret_key_change_in_production'
-    );
+    const decoded = jwt.verify(token, getJwtSecret());
     const user = await User.findById(decoded.userId);
     if (user && user.isActive && !user.isCurrentlyRestricted()) {
       const identity = await AnonymousIdentity.findOne({ userId: user._id, isActive: true });
