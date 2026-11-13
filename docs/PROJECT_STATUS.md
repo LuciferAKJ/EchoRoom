@@ -5,8 +5,8 @@ Last Updated: November 13, 2026
 ## Overview
 - **Project Name:** EchoRoom – Anonymous Thoughts & Empathy Platform
 - **Architecture:** MERN (MongoDB Atlas / Mongoose, Express.js, React + Vite + Tailwind CSS, Node.js + Socket.IO)
-- **Current Stage:** STEP 4 — Authentication and Anonymous Identities (Completed)
-- **Exact Next Action:** Proceed to Step 5 (Anonymous Thoughts and Discovery Feed: Thought creation, 8 emotions, topic filtering, random discovery, public search, and pagination).
+- **Current Stage:** STEP 5 — Anonymous Thoughts and Discovery Feed (Completed)
+- **Exact Next Action:** Proceed to Step 6 (Empathy Responses, Comments, and Saved Thoughts: 5 empathy reactions, duplicate reaction prevention, comment threads, bookmark storage, and interaction guards).
 
 ---
 
@@ -67,13 +67,20 @@ Last Updated: November 13, 2026
 - [x] Integrated real persona display, avatar tone, and logout controls in `Layout.jsx` and `UserSettings.jsx`
 - [x] Verified complete 7-test integration suite passing against live MongoDB Atlas cluster
 
-### [ ] STEP 5: Anonymous Thoughts and Discovery Feed
-- [ ] Create new thought with content, 8 emotions (Happy, Sad, Confused, Frustrated, Hopeful, Lonely, Grateful, Motivated) and optional topics
-- [ ] Edit and delete personal thoughts
-- [ ] Public feed with pagination, sorting (recent, trending)
-- [ ] Random discovery ("Serendipity") mode
-- [ ] Filter by emotion and topic
-- [ ] Public search with sanitization
+### [x] STEP 5: Anonymous Thoughts and Discovery Feed
+- [x] Create thought endpoint (`POST /api/thoughts`) with authentication, content length validation, 8 validated emotions, sanitized topics, and expiration dates
+- [x] Automatic TTL & query-level exclusion for expired thoughts (`getActiveFilter`)
+- [x] Public thought feed (`GET /api/thoughts`) with pagination, emotion filtering, topic filtering, and newest/most-empathy sorting
+- [x] Single thought read endpoint (`GET /api/thoughts/:id`) with populated public author identity
+- [x] Personal thought edit (`PATCH /api/thoughts/:id`) and delete (`DELETE /api/thoughts/:id`) with strict authorship verification
+- [x] Serendipity random discovery (`GET /api/thoughts/discover`) using MongoDB `$sample` aggregation
+- [x] Full-text keyword and topic search (`GET /api/thoughts/search`) with regex escaping against ReDoS
+- [x] Frontend `CreateThought.jsx`: Interactive form with 8 emotion selector pills, live character counter, topic tag inputs, and lifespan selector
+- [x] Frontend `HomeFeed.jsx`: Live stream with emotion filter pills, search input bar, sorting toggle, pagination bar, and loading skeletons
+- [x] Frontend `RandomDiscovery.jsx`: Interactive serendipitous discovery drawing random unread thoughts with flip/refresh animations
+- [x] Frontend `ThoughtDetails.jsx`: Dedicated single-thought reflection view with author capsule, emotion pill, and discussion layout
+- [x] Semantic color system for all 8 emotions in `frontend/src/utils/emotionTheme.js`
+- [x] Verified complete 7-test backend integration suite passing against live MongoDB Atlas cluster
 
 ### [ ] STEP 6: Empathy Responses, Comments, and Saved Thoughts
 - [ ] 5 empathy response types:
