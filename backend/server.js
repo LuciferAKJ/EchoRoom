@@ -30,6 +30,10 @@ const io = new Server(server, {
 // Attach Socket.IO instance to app for route access
 app.set('io', io);
 
+// Initialize real-time room communication
+const { initRoomSocket } = require('./src/socket/roomSocket');
+initRoomSocket(io);
+
 // Security & Utility Middleware
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' }

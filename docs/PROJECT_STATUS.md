@@ -5,8 +5,8 @@ Last Updated: November 13, 2026
 ## Overview
 - **Project Name:** EchoRoom – Anonymous Thoughts & Empathy Platform
 - **Architecture:** MERN (MongoDB Atlas / Mongoose, Express.js, React + Vite + Tailwind CSS, Node.js + Socket.IO)
-- **Current Stage:** STEP 6 — Empathy Responses, Comments, and Saved Thoughts (Completed)
-- **Exact Next Action:** Proceed to Step 7 (Real-Time Discussion Rooms: Socket.IO events, room lifecycle, message persistence, presence tracking, rate limiting, and chat view).
+- **Current Stage:** STEP 7 — Real-Time Discussion Rooms (Completed)
+- **Exact Next Action:** Proceed to Step 8 (Expiration, Analytics, and Moderation: TTL expiration sweep, aggregated emotion analytics, reporting pipeline, and admin moderation dashboard).
 
 ---
 
@@ -96,13 +96,17 @@ Last Updated: November 13, 2026
 - [x] Frontend `HomeFeed.jsx` quick bookmark toggle on stream cards
 - [x] Verified complete 10-test backend integration suite passing against live MongoDB Atlas cluster
 
-### [ ] STEP 7: Real-Time Discussion Rooms
-- [ ] Socket.IO server initialization & client integration
-- [ ] Authenticated room joining (`room:join`), leaving (`room:leave`), message sending (`message:send`)
-- [ ] Live participant count and active presence tracking
-- [ ] Message history persistence (`RoomMessage`)
-- [ ] Room lifecycle: Create, Join, Leave, Close (by creator/moderator)
-- [ ] Socket rate limiting and error handling
+### [x] STEP 7: Real-Time Discussion Rooms
+- [x] Native Socket.IO server architecture with authenticated JWT handshake middleware (`socketAuthMiddleware`)
+- [x] Authenticated room lifecycle events: `room:join`, `room:leave`, `message:send`, `room:joined`, `room:participants`, `room:message`, `room:closed`, `room:error`
+- [x] Live participant presence tracking with auto-cleanup on socket disconnect
+- [x] Ephemeral message history persistence in MongoDB (`RoomMessage`) with populated anonymous personas
+- [x] Message rate limiting per socket (max 1 message per 600ms) to prevent spam
+- [x] Room closure endpoint (`POST /api/rooms/:id/close`) broadcasting `room:closed` to all active socket participants
+- [x] Frontend `SocketContext.jsx` singleton manager with auto-reconnection and token synchronization
+- [x] Frontend `DiscussionRooms.jsx` directory with live active badges, create room modal, and topic previews
+- [x] Frontend `LiveRoomChat.jsx` real-time conversation canvas with autoscroll, participant counter, message distinction, and leave/close controls
+- [x] Verified multi-client Socket.IO integration test passing (concurrent dual-client message and room closure broadcast)
 
 ### [ ] STEP 8: Expiration, Analytics, and Moderation
 - [ ] Thought expiration policies (24h, 3d, 7d, Never) with MongoDB TTL + query-level filter
