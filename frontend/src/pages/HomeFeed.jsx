@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Card, { CardHeader, CardTitle, CardContent, CardFooter } from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { Heart, MessageCircle, Search, Filter, Sparkles, Clock, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Heart, MessageCircle, Search, Filter, Sparkles, Clock, X, ChevronLeft, ChevronRight, Bookmark } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { EMOTIONS, getEmotionStyle, formatRelativeTime } from '../utils/emotionTheme';
 import api from '../api/client';
 
 export const HomeFeed = () => {
+  const { isAuthenticated } = useAuth();
   const [thoughts, setThoughts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedEmotion, setSelectedEmotion] = useState('All');
@@ -15,6 +17,22 @@ export const HomeFeed = () => {
   const [sortBy, setSortBy] = useState('newest');
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ total: 0, totalPages: 1 });
+  const [savedMap, setSavedMap] = useState({});
+
+  const handleToggleSave = async (thoughtId) => {
+    if (!isAuthenticated) {
+      alert('Please log in to bookmark reflections.');
+      return;
+    }
+    try {
+      const res = await api.post(`/thoughts/${thoughtId}/save`);
+      if (res.data.success) {
+        setSavedMap((prev) => ({ ...prev, [thoughtId]: res.data.isSaved }));
+      }
+    } catch (e) {
+      console.error('Failed to toggle save:', e);
+    }
+  };
 
   const fetchThoughts = async () => {
     setLoading(true);
@@ -233,13 +251,24 @@ export const HomeFeed = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-2">
                     <span
                       className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium border flex items-center gap-1 ${emotionStyle.badge}`}
                     >
                       <span className={`w-1 h-1 rounded-full ${emotionStyle.dot}`}></span>
                       {thought.emotion}
                     </span>
+                    <button
+                      onClick={() => handleToggleSave(thought._id)}
+                      title="Bookmark thought"
+                      className={`p-1.5 rounded-lg border transition-all ${
+                        savedMap[thought._id]
+                          ? 'bg-echo-lavender/20 border-echo-lavender text-echo-lavender'
+                          : 'bg-echo-surface border-echo-border text-echo-subtle hover:text-echo-text'
+                      }`}
+                    >
+                      <Bookmark className={`w-3.5 h-3.5 ${savedMap[thought._id] ? 'fill-echo-lavender' : ''}`} />
+                    </button>
                   </div>
                 </CardHeader>
 

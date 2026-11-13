@@ -5,8 +5,8 @@ Last Updated: November 13, 2026
 ## Overview
 - **Project Name:** EchoRoom – Anonymous Thoughts & Empathy Platform
 - **Architecture:** MERN (MongoDB Atlas / Mongoose, Express.js, React + Vite + Tailwind CSS, Node.js + Socket.IO)
-- **Current Stage:** STEP 5 — Anonymous Thoughts and Discovery Feed (Completed)
-- **Exact Next Action:** Proceed to Step 6 (Empathy Responses, Comments, and Saved Thoughts: 5 empathy reactions, duplicate reaction prevention, comment threads, bookmark storage, and interaction guards).
+- **Current Stage:** STEP 6 — Empathy Responses, Comments, and Saved Thoughts (Completed)
+- **Exact Next Action:** Proceed to Step 7 (Real-Time Discussion Rooms: Socket.IO events, room lifecycle, message persistence, presence tracking, rate limiting, and chat view).
 
 ---
 
@@ -82,17 +82,19 @@ Last Updated: November 13, 2026
 - [x] Semantic color system for all 8 emotions in `frontend/src/utils/emotionTheme.js`
 - [x] Verified complete 7-test backend integration suite passing against live MongoDB Atlas cluster
 
-### [ ] STEP 6: Empathy Responses, Comments, and Saved Thoughts
-- [ ] 5 empathy response types:
-  - "I understand"
-  - "You're not alone"
-  - "Sending support"
-  - "I relate to this"
-  - "Thank you for sharing"
-- [ ] Prevent duplicate empathy reactions per user
-- [ ] Written comments with pagination
-- [ ] Save/bookmark thoughts API & view
-- [ ] Interaction restrictions and basic spam throttling
+### [x] STEP 6: Empathy Responses, Comments, and Saved Thoughts
+- [x] 5 canonical empathy response types: `understand`, `not_alone`, `support`, `relate`, `thanks`
+- [x] Empathy toggle controller (`POST /api/thoughts/:id/empathy`) with automatic atomic increments and decrements on `Thought.empathyCounts`
+- [x] Duplicate spam prevention using compound unique indexing `{ thought: 1, user: 1, reactionType: 1 }`
+- [x] Empathy status query (`GET /api/thoughts/:id/empathy`) reporting user's active reactions and aggregate breakdown
+- [x] Written responses (`POST /api/thoughts/:id/comments`) with length validation, nested reply support, and counter increment
+- [x] Paginated chronological comment stream (`GET /api/thoughts/:id/comments`) with author pseudonyms and avatar tones
+- [x] Comment deletion (`DELETE /api/thoughts/:thoughtId/comments/:commentId`) restricted to author, thought owner, or admin
+- [x] Bookmark toggle (`POST /api/thoughts/:id/save`) and bookmark list retrieval (`GET /api/thoughts/saved` / `GET /api/saved`)
+- [x] Frontend `ThoughtDetails.jsx` integrated with live empathy toggle buttons, counter badges, comment input, and threaded response cards
+- [x] Frontend `SavedThoughts.jsx` personal collection view with one-click remove bookmark controls and empty states
+- [x] Frontend `HomeFeed.jsx` quick bookmark toggle on stream cards
+- [x] Verified complete 10-test backend integration suite passing against live MongoDB Atlas cluster
 
 ### [ ] STEP 7: Real-Time Discussion Rooms
 - [ ] Socket.IO server initialization & client integration

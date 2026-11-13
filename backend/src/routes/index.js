@@ -8,12 +8,16 @@ const roomRoutes = require('./roomRoutes');
 const moderationRoutes = require('./moderationRoutes');
 const analyticsRoutes = require('./analyticsRoutes');
 
+const savedController = require('../controllers/savedController');
+const { protect } = require('../middleware/auth');
+
 // Mount sub-routers
 router.use('/auth', authRoutes);
 router.use('/identity', identityRoutes);
 router.use('/thoughts', thoughtRoutes);
 router.use('/rooms', roomRoutes);
 router.use('/analytics', analyticsRoutes);
+router.get('/saved', protect, savedController.getSavedThoughts);
 router.use('/', moderationRoutes); // Mounts /reports and /admin/*
 
 module.exports = router;

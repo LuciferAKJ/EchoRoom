@@ -82,3 +82,4 @@ export const formatRelativeTime = (dateInput) => {
   if (diffDay < 7) return `${diffDay}d ago`;
   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 };
+
