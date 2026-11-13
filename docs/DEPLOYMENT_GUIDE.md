@@ -134,3 +134,4 @@ After completing deployment, execute this 10-point smoke test to verify all laye
 - [ ] **8. Thought Details & Comments:** Click on the thought. Post an anonymous supportive comment. Verify it displays chronologically.
 - [ ] **9. Real-Time Discussion Room:** Open two separate browser tabs (or an incognito window). Join the same discussion room. Send a message from Tab A and verify Tab B receives it instantaneously via WebSocket.
 - [ ] **10. Analytics Dashboard:** Visit `/community-insights`. Verify the emotion breakdown chart and participation KPIs reflect the newly created data.
+

@@ -20,3 +20,4 @@ describe('UI: Card Component', () => {
     expect(screen.getByText(/the quiet moments before dawn/i)).toBeInTheDocument();
   });
 });
+

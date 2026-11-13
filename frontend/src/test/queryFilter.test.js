@@ -38,3 +38,4 @@ describe('Feed Query Filters & Pagination', () => {
     assert.equal(calculateTotalPages(25, 8), 4);
   });
 });
+

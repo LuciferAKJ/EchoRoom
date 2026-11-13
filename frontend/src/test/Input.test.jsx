@@ -23,3 +23,4 @@ describe('UI: Input Component', () => {
     expect(screen.getByText(/password must be at least 6 characters/i)).toBeInTheDocument();
   });
 });
+

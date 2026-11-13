@@ -37,3 +37,4 @@ const scanContentForSafety = (text) => {
 module.exports = {
   scanContentForSafety,
 };
+

@@ -336,3 +336,4 @@ Returns real-time service uptime and MongoDB connection state:
   }
 }
 ```
+

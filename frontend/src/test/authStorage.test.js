@@ -28,3 +28,4 @@ describe('Auth & Storage Utilities', () => {
     assert.equal(isValidPseudonym(null), false);
   });
 });
+

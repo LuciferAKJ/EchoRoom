@@ -204,3 +204,4 @@ User bookmarks collection.
 
 **Indexes:**
 - `{ user: 1, thought: 1 }` (Compound Unique Index: prevents duplicate bookmarks)
+
