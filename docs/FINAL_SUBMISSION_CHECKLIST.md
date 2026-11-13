@@ -163,3 +163,4 @@ npm run build
   - `.git/` (git repository metadata omitted)
   - `.env` (live credentials strictly omitted for security)
   - `dist/`, `.cache/`, temporary logs
+

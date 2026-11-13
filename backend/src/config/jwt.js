@@ -16,3 +16,4 @@ const getJwtSecret = () => {
 module.exports = {
   getJwtSecret,
 };
+
