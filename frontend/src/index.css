@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-echo-bg text-echo-text font-sans antialiased min-h-screen selection:bg-echo-lavender/20 selection:text-echo-lavender;
+  }
+
+  /* Editorial heading accents */
+  h1, h2, h3 {
+    @apply tracking-tight;
+  }
+}
+
+/* Custom understated scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0d0f14;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #272c3d;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #394056;
+}
+
+/* Utility classes for subtle interactive elements */
+@layer components {
+  .echo-card {
+    @apply bg-echo-card border border-echo-border rounded-xl transition-all duration-150;
+  }
+  
+  .echo-card-hover {
+    @apply hover:border-echo-muted/40 hover:bg-echo-hover;
+  }
+
+  .echo-input {
+    @apply w-full bg-echo-surface border border-echo-border rounded-lg px-3.5 py-2.5 text-echo-text placeholder-echo-subtle focus:outline-none focus:border-echo-lavender focus:ring-1 focus:ring-echo-lavender/30 transition-all text-sm;
+  }
+
+  .echo-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-echo-lavender text-echo-bg font-medium text-sm hover:bg-echo-lavenderDark active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .echo-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-echo-surface border border-echo-border text-echo-text font-medium text-sm hover:bg-echo-hover hover:border-echo-muted/50 active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none;
+  }
+
+  .echo-btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-echo-muted hover:text-echo-text hover:bg-echo-surface/60 transition-all text-sm;
+  }
+}
