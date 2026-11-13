@@ -79,27 +79,17 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+const apiRoutes = require('./src/routes');
+const { errorHandler, notFoundHandler } = require('./src/middleware/errorMiddleware');
+
+// Mount API Routes
+app.use('/api', apiRoutes);
+
 // Centralized 404 Handler for undefined API routes
-app.use('/api', (req, res, next) => {
-  res.status(404).json({
-    success: false,
-    message: `API route not found: ${req.method} ${req.originalUrl}`,
-  });
-});
+app.use('/api', notFoundHandler);
 
 // Centralized Error Handling Middleware
-app.use((err, req, res, next) => {
-  console.error('[Unhandled Error]', err);
-
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal server error';
-
-  res.status(statusCode).json({
-    success: false,
-    message,
-    ...(process.env.NODE_ENV === 'development' ? { stack: err.stack } : {}),
-  });
-});
+app.use(errorHandler);
 
 // Server Startup Function
 const PORT = process.env.PORT || 5000;
@@ -117,6 +107,8 @@ const startServer = async () => {
   }
 };
 
-startServer();
+if (require.main === module) {
+  startServer();
+}
 
-module.exports = { app, server, io };
+module.exports = { app, server, io, startServer };

@@ -38,3 +38,4 @@ export const SavedThoughts = () => {
 };
 
 export default SavedThoughts;
+

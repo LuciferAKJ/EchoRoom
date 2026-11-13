@@ -86,3 +86,4 @@ export const CreateThought = () => {
 };
 
 export default CreateThought;
+

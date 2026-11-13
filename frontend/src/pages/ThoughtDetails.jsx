@@ -98,3 +98,4 @@ export const ThoughtDetails = () => {
 };
 
 export default ThoughtDetails;
+
