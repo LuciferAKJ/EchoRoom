@@ -12,6 +12,9 @@ import {
   AlertCircle,
   Bookmark,
   Trash2,
+  Flag,
+  X,
+  CheckCircle,
 } from 'lucide-react';
 import { getEmotionStyle, formatRelativeTime } from '../utils/emotionTheme';
 import { useAuth } from '../context/AuthContext';
@@ -46,6 +49,42 @@ export const ThoughtDetails = () => {
   const [commentText, setCommentText] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
   const [commentError, setCommentError] = useState('');
+
+  // Report Modal State
+  const [reportModalOpen, setReportModalOpen] = useState(false);
+  const [reportReason, setReportReason] = useState('inappropriate');
+  const [reportDetails, setReportDetails] = useState('');
+  const [reporting, setReporting] = useState(false);
+  const [reportSuccess, setReportSuccess] = useState('');
+
+  const handleReportThought = async (e) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      alert('Please log in to report content.');
+      return;
+    }
+    setReporting(true);
+    try {
+      const res = await api.post('/reports', {
+        targetModel: 'Thought',
+        targetId: id,
+        reason: reportReason,
+        details: reportDetails,
+      });
+      if (res.data.success) {
+        setReportSuccess('Thank you. This thought has been submitted to the moderation team.');
+        setTimeout(() => {
+          setReportModalOpen(false);
+          setReportSuccess('');
+          setReportDetails('');
+        }, 2500);
+      }
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to submit report.');
+    } finally {
+      setReporting(false);
+    }
+  };
 
   const empathyConfig = [
     { key: 'understand', label: 'I understand', countKey: 'understand' },
@@ -301,8 +340,95 @@ export const ThoughtDetails = () => {
             >
               <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-echo-lavender' : ''}`} />
             </button>
+
+            <button
+              onClick={() => setReportModalOpen(true)}
+              title="Report inappropriate content"
+              className="p-2 rounded-lg border bg-echo-surface border-echo-border text-echo-subtle hover:text-echo-rose hover:border-echo-rose/40 transition-all"
+            >
+              <Flag className="w-4 h-4" />
+            </button>
           </div>
         </div>
+
+        {/* Report Modal */}
+        {reportModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <Card className="max-w-md w-full p-6 space-y-4 shadow-elevated border-echo-rose/40">
+              <div className="flex items-center justify-between border-b border-echo-border/50 pb-3">
+                <div className="flex items-center gap-2 text-echo-rose">
+                  <Flag className="w-4 h-4" />
+                  <h3 className="text-base font-semibold text-echo-text">Report Inappropriate Reflection</h3>
+                </div>
+                <button
+                  onClick={() => setReportModalOpen(false)}
+                  className="text-echo-subtle hover:text-echo-text p-1"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {reportSuccess ? (
+                <div className="p-4 rounded-lg bg-echo-emerald/15 border border-echo-emerald/30 flex items-center gap-2 text-xs text-echo-emerald">
+                  <CheckCircle className="w-5 h-5 shrink-0" />
+                  <span>{reportSuccess}</span>
+                </div>
+              ) : (
+                <form onSubmit={handleReportThought} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-medium text-echo-muted uppercase tracking-wider">
+                      Reason for Report
+                    </label>
+                    <select
+                      value={reportReason}
+                      onChange={(e) => setReportReason(e.target.value)}
+                      className="w-full bg-echo-surface border border-echo-border rounded-lg px-3 py-2 text-echo-text text-sm focus:outline-none focus:border-echo-lavender"
+                    >
+                      <option value="inappropriate">Inappropriate / Obscene content</option>
+                      <option value="harassment">Harassment or hostility</option>
+                      <option value="hate_speech">Hate speech or discrimination</option>
+                      <option value="spam">Spam or commercial promotion</option>
+                      <option value="self_harm">Self-harm or crisis concern</option>
+                      <option value="other">Other guideline violation</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-medium text-echo-muted uppercase tracking-wider">
+                      Additional context (Optional)
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={reportDetails}
+                      onChange={(e) => setReportDetails(e.target.value)}
+                      placeholder="Help our moderation team understand the issue..."
+                      className="echo-input resize-none"
+                    ></textarea>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-2">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setReportModalOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="danger"
+                      size="sm"
+                      loading={reporting}
+                    >
+                      Submit Report
+                    </Button>
+                  </div>
+                </form>
+              )}
+            </Card>
+          </div>
+        )}
 
         <p className="text-base sm:text-lg text-echo-text leading-relaxed font-serif italic py-2 whitespace-pre-wrap">
           "{thought.content}"

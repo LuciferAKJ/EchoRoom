@@ -5,8 +5,8 @@ Last Updated: November 13, 2026
 ## Overview
 - **Project Name:** EchoRoom – Anonymous Thoughts & Empathy Platform
 - **Architecture:** MERN (MongoDB Atlas / Mongoose, Express.js, React + Vite + Tailwind CSS, Node.js + Socket.IO)
-- **Current Stage:** STEP 7 — Real-Time Discussion Rooms (Completed)
-- **Exact Next Action:** Proceed to Step 8 (Expiration, Analytics, and Moderation: TTL expiration sweep, aggregated emotion analytics, reporting pipeline, and admin moderation dashboard).
+- **Current Stage:** STEP 8 — Expiration, Analytics, and Moderation (Completed)
+- **Exact Next Action:** Proceed to Step 9 (Complete Testing and Production Preparation: Full test runner suite, security hardening verification, input sanitization, API docs, database docs, and deployment guides).
 
 ---
 
@@ -108,12 +108,17 @@ Last Updated: November 13, 2026
 - [x] Frontend `LiveRoomChat.jsx` real-time conversation canvas with autoscroll, participant counter, message distinction, and leave/close controls
 - [x] Verified multi-client Socket.IO integration test passing (concurrent dual-client message and room closure broadcast)
 
-### [ ] STEP 8: Expiration, Analytics, and Moderation
-- [ ] Thought expiration policies (24h, 3d, 7d, Never) with MongoDB TTL + query-level filter
-- [ ] Aggregated community analytics (`/api/analytics/community`): emotion distribution, trending topics, weekly rhythms
-- [ ] Reporting system (`POST /api/reports`) for thoughts and comments
-- [ ] Admin moderation dashboard (`/api/admin/reports`, `/api/admin/users/:id/restriction`)
-- [ ] Automated content safety heuristics & manual hide/action controls
+### [x] STEP 8: Expiration, Analytics, and Moderation
+- [x] Dual-layer thought expiration (24h, 3d, 7d, never) using MongoDB TTL index and immediate query filtering (`getActiveFilter`)
+- [x] Community analytics engine (`GET /api/analytics/community`) aggregating emotion distribution, dominant emotion, trending topics, and 7-day rhythms
+- [x] Polymorphic reporting system (`POST /api/reports`) for Thoughts, Comments, and Discussion Rooms with heuristic safety scanning
+- [x] Role-restricted admin moderation portal (`GET /api/admin/reports`, `PATCH /api/admin/reports/:id`)
+- [x] Action pipeline to approve, hide, or remove flagged content across models
+- [x] Account restriction system (`PATCH /api/admin/users/:id/restriction`) with temporary or permanent bans enforced in `authMiddleware`
+- [x] Frontend `CommunityInsights.jsx` with KPI cards, emotion distribution bars, and trending topic tags
+- [x] Frontend `AdminModeration.jsx` triage dashboard with status filters and quick actions
+- [x] In-thought report modal integrated into `ThoughtDetails.jsx`
+- [x] Verified complete 9-test backend integration suite passing against live MongoDB Atlas cluster
 
 ### [ ] STEP 9: Complete Testing and Production Preparation
 - [ ] Supertest backend integration test suite
