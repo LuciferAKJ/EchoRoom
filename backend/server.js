@@ -85,9 +85,10 @@ app.get('/api/health', (req, res) => {
 
 const apiRoutes = require('./src/routes');
 const { errorHandler, notFoundHandler } = require('./src/middleware/errorMiddleware');
+const { apiLimiter } = require('./src/middleware/rateLimiter');
 
-// Mount API Routes
-app.use('/api', apiRoutes);
+// Mount API Routes with General Rate Limiting
+app.use('/api', apiLimiter, apiRoutes);
 
 // Centralized 404 Handler for undefined API routes
 app.use('/api', notFoundHandler);
