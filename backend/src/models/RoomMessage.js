@@ -40,3 +40,4 @@ roomMessageSchema.index({ room: 1, createdAt: 1 });
 
 const RoomMessage = mongoose.model('RoomMessage', roomMessageSchema);
 module.exports = RoomMessage;
+

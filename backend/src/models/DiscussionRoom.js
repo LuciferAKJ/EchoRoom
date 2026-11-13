@@ -51,3 +51,4 @@ discussionRoomSchema.index({ isClosed: 1, createdAt: -1 });
 
 const DiscussionRoom = mongoose.model('DiscussionRoom', discussionRoomSchema);
 module.exports = DiscussionRoom;
+

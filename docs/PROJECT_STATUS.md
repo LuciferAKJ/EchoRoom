@@ -5,8 +5,8 @@ Last Updated: November 13, 2026
 ## Overview
 - **Project Name:** EchoRoom – Anonymous Thoughts & Empathy Platform
 - **Architecture:** MERN (MongoDB Atlas / Mongoose, Express.js, React + Vite + Tailwind CSS, Node.js + Socket.IO)
-- **Current Stage:** STEP 3 — Database and Backend Foundation (Completed)
-- **Exact Next Action:** Proceed to Step 4 (Authentication and Anonymous Identities: User registration, bcrypt hashing, JWT issuance, authMiddleware, anonymous identity generation, and frontend AuthContext).
+- **Current Stage:** STEP 4 — Authentication and Anonymous Identities (Completed)
+- **Exact Next Action:** Proceed to Step 5 (Anonymous Thoughts and Discovery Feed: Thought creation, 8 emotions, topic filtering, random discovery, public search, and pagination).
 
 ---
 
@@ -51,14 +51,21 @@ Last Updated: November 13, 2026
 - [x] Verified MongoDB Atlas connection directly against live cluster (`echoroom` database connected)
 - [x] Verified API route architecture and error handling with Supertest integration checks
 
-### [ ] STEP 4: Authentication and Anonymous Identities
-- [ ] User registration with bcrypt password hashing
-- [ ] User login and JWT token issuance (cookie / bearer)
-- [ ] Global `AuthContext` on frontend
-- [ ] Protected route middleware (`authMiddleware`) and admin middleware (`adminMiddleware`)
-- [ ] Anonymous display identity generator (e.g., "Gentle Wanderer", "Quiet Cloud")
-- [ ] Display identity customization without leaking private account data
-- [ ] Verification tests for auth and public/private identity separation
+### [x] STEP 4: Authentication and Anonymous Identities
+- [x] User registration with bcrypt password hashing (10 salt rounds) and automatic unique pseudonym generation
+- [x] User login verifying credentials, account activity status, and active restrictions
+- [x] Signed JWT token issuance with user ID and role
+- [x] Backend Auth Middleware in `backend/src/middleware/auth.js`:
+  - `protect`: verifies Bearer JWT, fetches User and active AnonymousIdentity
+  - `optionalAuth`: attaches user/identity for public browsing without blocking guests
+  - `restrictTo`: role-based authorization for admin and moderator actions
+- [x] Display identity customization (`PATCH /api/identity/me`) and random suggestion generator (`GET /api/identity/random`)
+- [x] Strict data sequestration: `toPublicJSON()` removes email, password hashes, and user IDs from public endpoints
+- [x] Frontend Axios API client with automatic token interceptor in `frontend/src/api/client.js`
+- [x] Global `AuthContext` (`frontend/src/context/AuthContext.jsx`) managing session, auto-login check, login/register/logout actions
+- [x] Interactive `Register.jsx` and `Login.jsx` pages wired with validation, loading indicators, error banners, and redirect
+- [x] Integrated real persona display, avatar tone, and logout controls in `Layout.jsx` and `UserSettings.jsx`
+- [x] Verified complete 7-test integration suite passing against live MongoDB Atlas cluster
 
 ### [ ] STEP 5: Anonymous Thoughts and Discovery Feed
 - [ ] Create new thought with content, 8 emotions (Happy, Sad, Confused, Frustrated, Hopeful, Lonely, Grateful, Motivated) and optional topics

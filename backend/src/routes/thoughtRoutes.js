@@ -27,3 +27,4 @@ router.post('/:id/save', validateObjectId('id'), thoughtController.saveThought);
 router.delete('/:id/save', validateObjectId('id'), thoughtController.unsaveThought);
 
 module.exports = router;
+

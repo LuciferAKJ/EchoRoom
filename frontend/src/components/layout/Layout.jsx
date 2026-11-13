@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLink, Link, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   Compass,
   MessageSquare,
@@ -14,11 +14,15 @@ import {
   Home,
   User,
   LogIn,
+  LogOut,
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 export const Layout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, identity, isAuthenticated, logout } = useAuth();
 
   // Primary navigation links
   const navLinks = [
@@ -31,10 +35,21 @@ export const Layout = () => {
 
   const secondaryLinks = [
     { to: '/settings', label: 'Identity & Settings', icon: Settings },
-    { to: '/admin', label: 'Moderation', icon: ShieldAlert },
+    ...(user?.role === 'admin' || user?.role === 'moderator'
+      ? [{ to: '/admin', label: 'Moderation', icon: ShieldAlert }]
+      : []),
   ];
 
   const closeMobileMenu = () => setMobileMenuOpen(false);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
+
+  const pseudonym = identity?.pseudonym || 'Guest Explorer';
+  const initial = pseudonym.charAt(0).toUpperCase();
+  const avatarColor = identity?.avatarColor || '#b4a0e5';
 
   return (
     <div className="min-h-screen bg-echo-bg text-echo-text flex flex-col md:flex-row antialiased selection:bg-echo-lavender/20 selection:text-echo-lavender">
@@ -124,21 +139,37 @@ export const Layout = () => {
         <div className="pt-4 border-t border-echo-border/50">
           <div className="p-2.5 rounded-xl bg-echo-card border border-echo-border/60 flex items-center justify-between">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-7 h-7 rounded-full bg-echo-lavender/20 border border-echo-lavender/40 flex items-center justify-center text-echo-lavender text-xs font-semibold shrink-0">
-                A
+              <div
+                className="w-7 h-7 rounded-full flex items-center justify-center text-echo-bg text-xs font-bold shrink-0"
+                style={{ backgroundColor: avatarColor }}
+              >
+                {initial}
               </div>
               <div className="truncate">
-                <p className="text-xs font-medium text-echo-text truncate">Quiet Wanderer</p>
-                <p className="text-[10px] text-echo-subtle truncate">Anonymous Guest</p>
+                <p className="text-xs font-medium text-echo-text truncate">{pseudonym}</p>
+                <p className="text-[10px] text-echo-subtle truncate">
+                  {isAuthenticated ? (user?.role === 'admin' ? 'Administrator' : 'Anonymous Member') : 'Not Signed In'}
+                </p>
               </div>
             </div>
-            <Link
-              to="/login"
-              title="Log in or Register"
-              className="text-echo-subtle hover:text-echo-text p-1.5 rounded-md hover:bg-echo-hover transition-colors"
-            >
-              <LogIn className="w-3.5 h-3.5" />
-            </Link>
+
+            {isAuthenticated ? (
+              <button
+                onClick={handleLogout}
+                title="Log out"
+                className="text-echo-subtle hover:text-echo-rose p-1.5 rounded-md hover:bg-echo-hover transition-colors"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                title="Log in or Register"
+                className="text-echo-subtle hover:text-echo-lavender p-1.5 rounded-md hover:bg-echo-hover transition-colors"
+              >
+                <LogIn className="w-3.5 h-3.5" />
+              </Link>
+            )}
           </div>
         </div>
       </aside>
@@ -177,20 +208,37 @@ export const Layout = () => {
         <div className="md:hidden fixed inset-0 z-30 bg-echo-bg/95 backdrop-blur-xl pt-16 px-6 pb-24 overflow-y-auto">
           <div className="space-y-6">
             <div className="p-3 rounded-xl bg-echo-card border border-echo-border flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-echo-lavender/20 border border-echo-lavender/40 flex items-center justify-center text-echo-lavender font-semibold text-sm">
-                A
+              <div
+                className="w-9 h-9 rounded-full flex items-center justify-center text-echo-bg font-bold text-sm"
+                style={{ backgroundColor: avatarColor }}
+              >
+                {initial}
               </div>
               <div className="truncate flex-1">
-                <p className="text-sm font-medium text-echo-text">Quiet Wanderer</p>
-                <p className="text-xs text-echo-subtle">Anonymous Guest</p>
+                <p className="text-sm font-medium text-echo-text">{pseudonym}</p>
+                <p className="text-xs text-echo-subtle">
+                  {isAuthenticated ? (user?.role === 'admin' ? 'Administrator' : 'Anonymous Member') : 'Not Signed In'}
+                </p>
               </div>
-              <Link
-                to="/login"
-                onClick={closeMobileMenu}
-                className="text-xs text-echo-lavender underline font-medium"
-              >
-                Sign In
-              </Link>
+              {isAuthenticated ? (
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    closeMobileMenu();
+                  }}
+                  className="text-xs text-echo-rose underline font-medium"
+                >
+                  Logout
+                </button>
+              ) : (
+                <Link
+                  to="/login"
+                  onClick={closeMobileMenu}
+                  className="text-xs text-echo-lavender underline font-medium"
+                >
+                  Sign In
+                </Link>
+              )}
             </div>
 
             <nav className="space-y-1">
@@ -284,4 +332,3 @@ export const Layout = () => {
 };
 
 export default Layout;
-

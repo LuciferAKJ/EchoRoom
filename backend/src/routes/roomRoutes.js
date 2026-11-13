@@ -9,3 +9,4 @@ router.get('/:id', validateObjectId('id'), roomController.getRoomById);
 router.post('/:id/close', validateObjectId('id'), roomController.closeRoom);
 
 module.exports = router;
+

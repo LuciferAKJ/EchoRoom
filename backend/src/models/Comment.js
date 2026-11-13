@@ -49,3 +49,4 @@ commentSchema.index({ thought: 1, status: 1, createdAt: 1 });
 
 const Comment = mongoose.model('Comment', commentSchema);
 module.exports = Comment;
+

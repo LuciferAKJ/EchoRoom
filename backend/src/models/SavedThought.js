@@ -30,3 +30,4 @@ savedThoughtSchema.index({ user: 1, thought: 1 }, { unique: true });
 
 const SavedThought = mongoose.model('SavedThought', savedThoughtSchema);
 module.exports = SavedThought;
+

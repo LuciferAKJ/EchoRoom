@@ -57,3 +57,4 @@ anonymousIdentitySchema.methods.toPublicJSON = function () {
 
 const AnonymousIdentity = mongoose.model('AnonymousIdentity', anonymousIdentitySchema);
 module.exports = AnonymousIdentity;
+

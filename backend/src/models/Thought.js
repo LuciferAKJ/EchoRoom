@@ -46,7 +46,6 @@ const thoughtSchema = new mongoose.Schema(
     expiresAt: {
       type: Date,
       default: null,
-      index: true,
     },
     status: {
       type: String,
@@ -82,3 +81,4 @@ thoughtSchema.index({ status: 1, 'empathyCounts.total': -1, createdAt: -1 });
 
 const Thought = mongoose.model('Thought', thoughtSchema);
 module.exports = Thought;
+

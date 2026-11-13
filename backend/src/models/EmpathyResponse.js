@@ -39,3 +39,4 @@ empathyResponseSchema.index({ thought: 1, user: 1, reactionType: 1 }, { unique: 
 
 const EmpathyResponse = mongoose.model('EmpathyResponse', empathyResponseSchema);
 module.exports = EmpathyResponse;
+

@@ -12,3 +12,4 @@ router.patch('/admin/reports/:id', validateObjectId('id'), moderationController.
 router.patch('/admin/users/:id/restriction', validateObjectId('id'), moderationController.restrictUser);
 
 module.exports = router;
+
