@@ -59,6 +59,37 @@ describe('1. System & Health Check', () => {
     assert.ok(res.body.database);
     assert.equal(res.body.database.readyState, 1); // 1 = connected
   });
+
+  test('GET /api/ready should return 200 when database is connected', async () => {
+    const res = await request(app).get('/api/ready');
+    assert.equal(res.status, 200);
+    assert.equal(res.body.status, 'ready');
+    assert.equal(res.body.database, 'connected');
+  });
+
+  test('getJwtSecret should reject weak or missing secrets in production', () => {
+    const { getJwtSecret } = require('../src/config/jwt');
+    const originalEnv = process.env.NODE_ENV;
+    const originalSecret = process.env.JWT_SECRET;
+
+    try {
+      // Test missing secret
+      delete process.env.JWT_SECRET;
+      assert.throws(() => getJwtSecret(), /FATAL: JWT_SECRET environment variable is not configured/);
+
+      // Test short secret in production
+      process.env.NODE_ENV = 'production';
+      process.env.JWT_SECRET = 'short_secret';
+      assert.throws(() => getJwtSecret(), /at least 32 characters/);
+
+      // Test placeholder keyword in production
+      process.env.JWT_SECRET = 'replace_with_a_very_long_production_secret_value_here';
+      assert.throws(() => getJwtSecret(), /cannot be a default or placeholder/);
+    } finally {
+      process.env.NODE_ENV = originalEnv;
+      process.env.JWT_SECRET = originalSecret;
+    }
+  });
 });
 
 describe('2. Authentication & Identity Flow', () => {

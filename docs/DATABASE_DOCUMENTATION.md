@@ -1,6 +1,6 @@
 # EchoRoom Database Architecture & Schema Documentation
 
-EchoRoom uses **MongoDB Atlas** with **Mongoose ODM**. The database design is architected to guarantee **absolute anonymity for users** while maintaining high query performance, relational integrity, automatic content expiration, and real-time empathy tracking.
+EchoRoom uses **MongoDB Atlas** with **Mongoose ODM**. The database design is architected to guarantee **absolute anonymity for users** while maintaining high query performance, referential integrity, automatic content expiration, and real-time empathy tracking.
 
 ---
 

@@ -382,8 +382,10 @@ Toggles account active state (`isActive: false` bans user from publishing or cha
 
 ---
 
-## 6. System Health Check (`GET /api/health`)
-Returns real-time service uptime and MongoDB connection state:
+## 6. System Health & Readiness (`GET /api/health`, `GET /api/ready`)
+
+### `GET /api/health`
+Returns real-time service uptime and MongoDB connection state (returns HTTP 503 in production if MongoDB is disconnected):
 ```json
 {
   "status": "ok",
@@ -397,4 +399,15 @@ Returns real-time service uptime and MongoDB connection state:
   }
 }
 ```
+
+### `GET /api/ready`
+Dedicated readiness probe for cloud orchestrators (Render, Kubernetes, Railway):
+- **Returns 200 OK** when MongoDB replica set is connected:
+  ```json
+  { "status": "ready", "database": "connected" }
+  ```
+- **Returns 503 Service Unavailable** when MongoDB is disconnected:
+  ```json
+  { "status": "not_ready", "database": "disconnected" }
+  ```
 

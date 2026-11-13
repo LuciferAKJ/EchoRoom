@@ -21,6 +21,8 @@ npm test
 | Suite / Test Case | Type | Expected Result | Actual Result | Status |
 |---|---|---|---|---|
 | `GET /api/health` | Health Check | Status 200, DB state `1` (connected) | Returns 200, `readyState: 1` in 75ms | **PASS** |
+| `GET /api/ready` | Readiness Probe | Status 200, database connected | Returns 200 with `{ status: "ready" }` | **PASS** |
+| `getJwtSecret` Production Check | Security Config | Throws on weak/missing in production | Rejects short/placeholder secrets | **PASS** |
 | `POST /api/auth/register` (New) | Auth | Status 201, JWT returned, password redacted | User created, persona generated, token returned | **PASS** |
 | `POST /api/auth/register` (Duplicate) | Auth | Status 409 Conflict | Returns 409 with "already exists" error | **PASS** |
 | `POST /api/auth/login` (Valid) | Auth | Status 200, JWT returned | Returns 200, JWT token returned | **PASS** |
@@ -69,6 +71,22 @@ npm test
 | `emotionTheme.test.js` | Verifies 8 canonical emotions, semantic badges, dot styles, relative time math | **PASS** |
 | `authStorage.test.js` | Verifies JWT storage serialization and pseudonym regex validation (`QuietEcho#4021`) | **PASS** |
 | `queryFilter.test.js` | Verifies URL search query builder, emotion filters, and pagination page math | **PASS** |
+
+### C. Frontend React Component Tests (`frontend/package.json -> npm run test:vitest`)
+Run in PowerShell:
+```powershell
+cd C:\Users\adity\Downloads\Echoroom\frontend
+npm run test:vitest
+```
+**Test Command:** `vitest run`  
+**Execution Environment:** Vitest v4, React Testing Library, JSDOM  
+**Overall Status:** **100% PASS (8 component tests across 3 suites)**
+
+| Suite | Component Tested | Purpose | Status |
+|---|---|---|---|
+| `Button.test.jsx` | `Button` | Verifies rendering children, click event firing, disabled state, and loading spinner | **PASS** |
+| `Input.test.jsx` | `Input` | Verifies label association, text input typing, and validation error styles | **PASS** |
+| `Card.test.jsx` | `Card` | Verifies card hierarchy, title container, and content slot rendering | **PASS** |
 
 ---
 

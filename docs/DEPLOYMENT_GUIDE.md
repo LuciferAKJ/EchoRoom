@@ -38,7 +38,7 @@ This guide provides end-to-end instructions for deploying **EchoRoom** online to
 2. **Configure Network Access (Whitelist):**
    - In the left sidebar, click **Network Access**.
    - **For Local Development & Staging Testing:**
-     - Click **Add IP Address** > Select **Add Current IP Address** (or `0.0.0.0/0` temporarily with an expiration if developing from variable networks).
+     - Click **Add IP Address** > Select **Add Current IP Address** to authorize your local development workstation.
    - **Important Security Practice for Production:**
      - **DO NOT** leave `0.0.0.0/0` (open to the entire world) enabled permanently in true production environments.
      - In production, restrict the IP access list strictly to your hosting platform's static outbound IP addresses (e.g. Render paid static outbound IP addresses), dedicated NAT gateway egress IPs, or establish **VPC Peering** / **PrivateLink** between MongoDB Atlas and your hosting provider (AWS/GCP/Azure).

@@ -90,8 +90,12 @@ app.get('/api/health', (req, res) => {
     3: 'disconnecting',
   };
 
-  res.status(200).json({
-    status: 'ok',
+  const isHealthy = dbState === 1;
+  // Production must not report healthy when MongoDB is disconnected
+  const statusCode = (!isHealthy && process.env.NODE_ENV === 'production') ? 503 : 200;
+
+  res.status(statusCode).json({
+    status: isHealthy ? 'ok' : 'unhealthy',
     service: 'EchoRoom API',
     version: '1.0.0',
     uptime: process.uptime(),
@@ -101,6 +105,16 @@ app.get('/api/health', (req, res) => {
       readyState: dbState,
     },
   });
+});
+
+// Dedicated Readiness Probe (/api/ready)
+app.get('/api/ready', (req, res) => {
+  const mongoose = require('mongoose');
+  const dbState = mongoose.connection.readyState;
+  if (dbState === 1) {
+    return res.status(200).json({ status: 'ready', database: 'connected' });
+  }
+  return res.status(503).json({ status: 'not_ready', database: 'disconnected' });
 });
 
 const apiRoutes = require('./src/routes');
@@ -121,13 +135,23 @@ const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
   // Connect to Database
-  await connectDB();
+  const conn = await connectDB();
+
+  // In production, MongoDB connection is mandatory; fail startup if unreachable
+  if (process.env.NODE_ENV === 'production') {
+    const mongoose = require('mongoose');
+    if (!conn || mongoose.connection.readyState !== 1) {
+      console.error('FATAL: Database connection failed in production mode. Aborting startup.');
+      process.exit(1);
+    }
+  }
 
   // Start HTTP & WebSocket Server
   if (process.env.NODE_ENV !== 'test') {
     server.listen(PORT, () => {
       console.log(`[Server] EchoRoom API is listening on port ${PORT}`);
       console.log(`[Server] Health check: http://localhost:${PORT}/api/health`);
+      console.log(`[Server] Readiness check: http://localhost:${PORT}/api/ready`);
     });
   }
 };
