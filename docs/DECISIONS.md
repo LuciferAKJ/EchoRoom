@@ -51,3 +51,4 @@ This document records the key architectural choices, design rationale, and techn
   4. *I relate to this*
   5. *Thank you for sharing*
 - **Rationale:** Reinforces the core mission of psychological safety, validation, and vulnerability rather than social competition.
+

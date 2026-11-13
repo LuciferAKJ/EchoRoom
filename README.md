@@ -80,3 +80,4 @@ npm run dev
 ```
 
 The frontend will run on `http://localhost:5173` and the backend on `http://localhost:5000`.
+
