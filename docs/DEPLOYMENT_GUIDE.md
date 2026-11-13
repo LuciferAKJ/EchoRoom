@@ -37,9 +37,12 @@ This guide provides end-to-end instructions for deploying **EchoRoom** online to
    Navigate to [cloud.mongodb.com](https://cloud.mongodb.com).
 2. **Configure Network Access (Whitelist):**
    - In the left sidebar, click **Network Access**.
-   - Click **Add IP Address**.
-   - Select **Allow Access From Anywhere** (`0.0.0.0/0`).
-   - *Why:* Render and Vercel use dynamic cloud IP pools. Whitelisting `0.0.0.0/0` allows secure TLS connections from cloud servers while protecting your data via database user credentials.
+   - **For Local Development & Staging Testing:**
+     - Click **Add IP Address** > Select **Add Current IP Address** (or `0.0.0.0/0` temporarily with an expiration if developing from variable networks).
+   - **Important Security Practice for Production:**
+     - **DO NOT** leave `0.0.0.0/0` (open to the entire world) enabled permanently in true production environments.
+     - In production, restrict the IP access list strictly to your hosting platform's static outbound IP addresses (e.g. Render paid static outbound IP addresses), dedicated NAT gateway egress IPs, or establish **VPC Peering** / **PrivateLink** between MongoDB Atlas and your hosting provider (AWS/GCP/Azure).
+     - Always use strong, randomly generated database user passwords (min. 24 characters) with TLS/SSL encryption enforced.
 3. **Obtain Connection String:**
    - Under **Database**, click **Connect** on your cluster.
    - Select **Drivers** (Node.js).

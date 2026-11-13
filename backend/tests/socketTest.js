@@ -3,7 +3,7 @@ const { Server } = require('socket.io');
 const ioClient = require('socket.io-client');
 const request = require('supertest');
 const { app } = require('../server');
-const { connectDB, disconnectDB } = require('../src/config/db');
+const { connectDB } = require('../src/config/db');
 const { initRoomSocket } = require('../src/socket/roomSocket');
 
 const runSocketTest = async () => {
@@ -22,6 +22,21 @@ const runSocketTest = async () => {
 
   try {
     const rand = Date.now();
+
+    // 0. Test Unauthorized Socket Connection (Without Token)
+    const unauthorizedClient = ioClient(`http://localhost:${TEST_PORT}`, {
+      transports: ['websocket'],
+      autoConnect: true,
+    });
+
+    const unauthError = await new Promise((resolve) => {
+      unauthorizedClient.on('connect_error', (err) => {
+        resolve(err.message);
+      });
+    });
+    unauthorizedClient.disconnect();
+    console.log(`✓ Unauthorized socket connection rejected: "${unauthError}"`);
+
     // 1. Register User A
     const userARes = await request(app)
       .post('/api/auth/register')
@@ -104,7 +119,23 @@ const runSocketTest = async () => {
       throw new Error('Message text mismatch');
     }
 
-    // 9. Close room via User A HTTP endpoint and verify broadcast to Client B
+    // 9. Client B leaves room -> Client A receives updated participant count = 1
+    const leavePromise = new Promise((resolve) => {
+      clientA.on('room:participants', (data) => {
+        if (data.count === 1) {
+          console.log(`✓ Client A received room:participants broadcast showing count = 1 after Client B left`);
+          resolve(data);
+        }
+      });
+    });
+    clientB.emit('room:leave', { roomId });
+    await leavePromise;
+
+    // Rejoin Client B to verify room closure broadcast
+    clientB.emit('room:join', { roomId });
+    await new Promise((r) => setTimeout(r, 200));
+
+    // 10. Close room via User A HTTP endpoint and verify broadcast to Client B
     const closePromise = new Promise((resolve) => {
       clientB.on('room:closed', (data) => {
         console.log(`✓ Client B received room:closed event: "${data.message}"`);
@@ -112,7 +143,7 @@ const runSocketTest = async () => {
       });
     });
 
-    // Also attach io to app for close endpoint
+    // Attach io to app for close endpoint
     app.set('io', testIo);
     await request(app)
       .post(`/api/rooms/${roomId}/close`)
@@ -135,4 +166,3 @@ const runSocketTest = async () => {
 };
 
 runSocketTest();
-

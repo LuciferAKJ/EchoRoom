@@ -9,8 +9,11 @@ const mongoose = require('mongoose');
 // Shared test variables
 let authToken = '';
 let userId = '';
+let otherUserToken = '';
+let otherUserId = '';
 let testThoughtId = '';
 const testEmail = `tester_${Date.now()}@university.edu`;
+const otherEmail = `other_${Date.now()}@university.edu`;
 const testPassword = 'Password123!';
 
 before(async () => {
@@ -28,12 +31,13 @@ after(async () => {
     const Report = require('../src/models/Report');
     const SavedThought = require('../src/models/SavedThought');
 
-    if (userId) {
-      await User.findByIdAndDelete(userId);
-      await AnonymousIdentity.findOneAndDelete({ userId });
-      await EmpathyResponse.deleteMany({ userId });
-      await Comment.deleteMany({ authorId: userId });
-      await SavedThought.deleteMany({ userId });
+    const userIds = [userId, otherUserId].filter(Boolean);
+    if (userIds.length > 0) {
+      await User.deleteMany({ _id: { $in: userIds } });
+      await AnonymousIdentity.deleteMany({ userId: { $in: userIds } });
+      await EmpathyResponse.deleteMany({ user: { $in: userIds } });
+      await Comment.deleteMany({ authorUser: { $in: userIds } });
+      await SavedThought.deleteMany({ user: { $in: userIds } });
     }
     if (testThoughtId) {
       await Thought.findByIdAndDelete(testThoughtId);
@@ -72,6 +76,13 @@ describe('2. Authentication & Identity Flow', () => {
 
     authToken = res.body.token;
     userId = res.body.user._id;
+
+    // Also register a secondary user to test authorization boundaries
+    const otherRes = await request(app)
+      .post('/api/auth/register')
+      .send({ email: otherEmail, password: testPassword });
+    otherUserToken = otherRes.body.token;
+    otherUserId = otherRes.body.user._id;
   });
 
   test('POST /api/auth/register with duplicate email should return 409 conflict error', async () => {
@@ -114,7 +125,7 @@ describe('2. Authentication & Identity Flow', () => {
   });
 });
 
-describe('3. Thoughts CRUD & Discovery', () => {
+describe('3. Thoughts CRUD, Editing & Authorization', () => {
   test('POST /api/thoughts should create a thought with valid emotion', async () => {
     const res = await request(app)
       .post('/api/thoughts')
@@ -148,6 +159,36 @@ describe('3. Thoughts CRUD & Discovery', () => {
     assert.match(res.body.message, /invalid emotion/i);
   });
 
+  test('PATCH /api/thoughts/:id allows original author to edit content', async () => {
+    const res = await request(app)
+      .patch(`/api/thoughts/${testThoughtId}`)
+      .set('Authorization', `Bearer ${authToken}`)
+      .send({ content: 'Updated content by original author.' });
+
+    assert.equal(res.status, 200);
+    assert.equal(res.body.success, true);
+    assert.equal(res.body.data.content, 'Updated content by original author.');
+  });
+
+  test('PATCH /api/thoughts/:id prevents other users from editing (403)', async () => {
+    const res = await request(app)
+      .patch(`/api/thoughts/${testThoughtId}`)
+      .set('Authorization', `Bearer ${otherUserToken}`)
+      .send({ content: 'Malicious modification attempt.' });
+
+    assert.equal(res.status, 403);
+    assert.match(res.body.message, /only edit thoughts you personally shared/i);
+  });
+
+  test('DELETE /api/thoughts/:id prevents unauthorized users from deleting (403)', async () => {
+    const res = await request(app)
+      .delete(`/api/thoughts/${testThoughtId}`)
+      .set('Authorization', `Bearer ${otherUserToken}`);
+
+    assert.equal(res.status, 403);
+    assert.match(res.body.message, /not authorized/i);
+  });
+
   test('GET /api/thoughts should return paginated list filtered by emotion', async () => {
     const res = await request(app)
       .get('/api/thoughts?emotion=Hopeful&limit=5');
@@ -175,7 +216,7 @@ describe('3. Thoughts CRUD & Discovery', () => {
   });
 
   test('GET /api/thoughts/search should find thought by content keyword', async () => {
-    const res = await request(app).get('/api/thoughts/search?q=automated');
+    const res = await request(app).get('/api/thoughts/search?q=Updated');
     assert.equal(res.status, 200);
     assert.equal(res.body.success, true);
     assert.ok(Array.isArray(res.body.data));
@@ -250,7 +291,7 @@ describe('5. Saved Thoughts (Bookmarks)', () => {
   });
 });
 
-describe('6. Analytics & Moderation', () => {
+describe('6. Analytics & Moderation Authorization', () => {
   test('GET /api/analytics/community should return emotional trends and counts', async () => {
     const res = await request(app).get('/api/analytics/community');
     assert.equal(res.status, 200);
@@ -274,5 +315,14 @@ describe('6. Analytics & Moderation', () => {
     assert.equal(res.status, 201);
     assert.equal(res.body.success, true);
     assert.equal(res.body.data.status, 'pending');
+  });
+
+  test('GET /api/admin/reports rejects non-admin users with 403 Forbidden', async () => {
+    const res = await request(app)
+      .get('/api/admin/reports')
+      .set('Authorization', `Bearer ${authToken}`);
+
+    assert.equal(res.status, 403);
+    assert.match(res.body.message, /not have permission/i);
   });
 });

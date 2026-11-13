@@ -200,3 +200,4 @@ All 9 required models are implemented in `backend/src/models/`:
 3. **Double-layer Expiration**: Combines MongoDB TTL index with immediate query filtering (`$or: [{ expiresAt: null }, { expiresAt: { $gt: new Date() } }]`) so expired thoughts are never shown during MongoDB's 60-second sweep cycle.
 4. **Anti-Spam Controls**: Compound unique indexes prevent duplicate reactions and duplicate bookmarks at the database level.
 5. **No AI Clichés or Boilerplate Bloat**: Code is modular, clean, and styled according to a consistent human-designed midnight/lavender visual system.
+

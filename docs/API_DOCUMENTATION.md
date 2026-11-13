@@ -194,8 +194,31 @@ Returns a random active thought utilizing MongoDB's `$sample` aggregation for se
 ### `GET /api/thoughts/search?q=query`
 Performs sanitized regex keyword search across thought contents and topic tags.
 
+### `PATCH /api/thoughts/:id`
+Allows the original author to update their reflection content, emotion, or topic tags.
+- **Headers:** `Authorization: Bearer <token>`
+- **Request Body:**
+  ```json
+  {
+    "content": "Updated reflection text...",
+    "emotion": "Hopeful",
+    "topics": ["healing", "growth"]
+  }
+  ```
+- **Authorization:** Only the original author's persona may edit (`403 Forbidden` if requested by another user).
+- **Response (200 OK):** Returns the updated thought object.
+
 ### `DELETE /api/thoughts/:id`
-Allows the original author to withdraw their thought permanently.
+Allows the original author (or an administrator) to withdraw their thought permanently (`status: "removed"`).
+- **Headers:** `Authorization: Bearer <token>`
+- **Authorization:** Author or Administrator role required (`403 Forbidden` otherwise).
+- **Response (200 OK):**
+  ```json
+  {
+    "success": true,
+    "message": "Thought removed from the echoes"
+  }
+  ```
 
 ---
 

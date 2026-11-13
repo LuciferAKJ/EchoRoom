@@ -28,6 +28,9 @@ npm test
 | `GET /api/auth/me` | Auth Profile | Status 200, persona details returned | Returns 200, returns pseudonym and color | **PASS** |
 | `POST /api/thoughts` (Valid) | Thoughts CRUD | Status 201, valid emotion persisted | Returns 201, thought created with author identity | **PASS** |
 | `POST /api/thoughts` (Invalid Emotion) | Thoughts CRUD | Status 400 Bad Request | Returns 400 with "Invalid emotion" error | **PASS** |
+| `PATCH /api/thoughts/:id` (Author) | Thought Editing | Status 200, content updated | Returns 200, content updated by author | **PASS** |
+| `PATCH /api/thoughts/:id` (Non-Author) | Authorization | Status 403 Forbidden | Returns 403 with "only edit thoughts you shared" | **PASS** |
+| `DELETE /api/thoughts/:id` (Non-Author) | Authorization | Status 403 Forbidden | Returns 403 with "not authorized" error | **PASS** |
 | `GET /api/thoughts?emotion=Hopeful` | Feed Query | Status 200, filtered pagination array | Returns 200, matches filtered emotion | **PASS** |
 | `GET /api/thoughts/:id` | Thoughts CRUD | Status 200, populated author persona | Returns 200 with populated anonymous author | **PASS** |
 | `GET /api/thoughts/discover` | Serendipity | Status 200, random unread thought | Returns 200 via MongoDB `$sample` aggregation | **PASS** |
@@ -40,8 +43,11 @@ npm test
 | `GET /api/saved` | Bookmarks | Status 200, list of bookmarked thoughts | Returns 200, contains saved thought | **PASS** |
 | `GET /api/analytics/community` | Analytics | Status 200, emotion breakdown | Returns 200, totals & distribution computed | **PASS** |
 | `POST /api/reports` | Moderation | Status 201, report status `pending` | Returns 201, report filed for admin triage | **PASS** |
+| `GET /api/admin/reports` (Non-Admin) | RBAC Security | Status 403 Forbidden | Returns 403 with "permission" denial | **PASS** |
+| Unauthorized Socket Connection | Socket Auth | Connection rejected | Returns `connect_error: Authentication token required` | **PASS** |
 | Multi-Client Socket.IO Room Joining | Real-Time | Handshake authenticated, count = 2 | Both clients connect and receive `room:joined` | **PASS** |
 | Real-Time Message Exchange | Real-Time | Client B receives Client A's message | Client B receives broadcast in < 20ms | **PASS** |
+| Client Leaves Room Presence | Real-Time | Participant count decrements to 1 | Client A receives updated presence count = 1 | **PASS** |
 | Room Closure Broadcast | Real-Time | Host closes room, broadcast sent | Client B receives `room:closed` notification | **PASS** |
 
 ---
@@ -181,3 +187,4 @@ Follow these 20 steps to manually test the complete user journey in a web browse
 20. **Duplicate Account**:
     - In `/register`, try registering with `student_demo@univ.edu` again.
     - Verify the error banner: *"An account with this email address already exists."*
+
